@@ -27,7 +27,7 @@ How to use the CLI:
         automatically resume the next time you try to
 
 -   Watch demo_use video for more info.
-![](https://www.youtube.com/watch?v=iqPI-6H5CjU)
+[![Watch the video](video_.png)](https://www.youtube.com/watch?v=iqPI-6H5CjU)
 
  
 
