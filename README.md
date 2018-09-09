@@ -26,6 +26,8 @@ How to use the CLI:
     -   if the file is resume-able close the program to stop and will
         automatically resume the next time you try to
 
+-   Watch demo_use video for more info.
+
  
 
 Features:
