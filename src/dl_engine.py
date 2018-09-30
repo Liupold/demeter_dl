@@ -4,7 +4,7 @@ from main_dl_fn import _download, _writer
 from smart_thread import E_Thread
 from threading import Lock, Thread
 ######
-#   Made by @liupold
+#   Made by Liupold
 #
 ######
 
