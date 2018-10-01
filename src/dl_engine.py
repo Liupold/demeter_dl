@@ -9,11 +9,14 @@ from threading import Lock, Thread
 ######
 
 
-class OpenEngine(object):
-    """docstring for OpenDownloadEngine"""
+class HarvesterEngine(object):
+    """HarvesterEngine: Downloads File From Internet
+       HarvesterEngine(url) -> HarvesterObject
+
+       *url: dowwnload url a.k.a download link
+    """
 
     def __init__(self, url):
-        # super(OpenDownloadEngine, self).__init__()
         try:
             self.given_url = url
             self.verify = True
@@ -50,13 +53,18 @@ class OpenEngine(object):
                 toast(3, 'self.no_of_parts@{}: {}'.format(
                     self, self.no_of_parts))
                 self.block = True  # blocks the thread till download completes
-                self.update_lock = Lock()
             else:
                 pass
         except Exception as e:
             toast(2, 'OpenEngine.__init__@{}: {}'.format(self, e))
 
-    def Donwload(self, blocking=True):
+    def Download(self, blocking=True):
+        """ Start The download!
+            Blocking is given by the blocking param
+            # default blocking is True
+            self.Download(blocking=True)
+        """
+        self.update_lock = Lock()
         self.block = blocking
 
         def _Download():
@@ -126,3 +134,26 @@ class OpenEngine(object):
     def Get_done(self):
         if self.size is not None:
             return self.done / self.size
+
+    def Get_info(self):
+
+        try:
+            _info_str = """
+                            file_name     : {}
+                            file_size     : {}
+                            url           : {}
+                            target folder : {}
+                        """.format(self.file_name, self.size,
+                                   self.given_url, self.location)
+        except Exception as e:
+            pass
+            _info_str = str(id(self))
+        return _info_str
+
+    def __repr__(self):
+        try:
+            _repr_str = "<{}>".format(self.file_name[0:20])
+        except Exception as e:
+            pass
+            _repr_str = str(id(self))
+        return _repr_str
