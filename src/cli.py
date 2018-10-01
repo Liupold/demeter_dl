@@ -1,4 +1,4 @@
-from dl_engine import OpenEngine
+from dl_engine import HarvesterEngine
 from threading import _start_new_thread
 from time import sleep
 from req_fn import toast, p_unit
@@ -81,11 +81,11 @@ if __name__ == '__main__':
         dl_link = input('URL-->')
         if 'https://www.youtube.com/watch?v=' == dl_link[0:32]:
             dl_link, yt_filename = yt_handler(dl_link)
-            main_instance = OpenEngine(dl_link)
+            main_instance = HarvesterEngine(dl_link)
             main_instance.location = __dl_location__
             main_instance.file_name = yt_filename
         else:
-            main_instance = OpenEngine(dl_link)
+            main_instance = HarvesterEngine(dl_link)
             main_instance.location = __dl_location__
         if main_instance.downloadable:
             print('\n')
@@ -94,7 +94,7 @@ if __name__ == '__main__':
             _user_input = input('Did we got that correct? (Y/N)')
             if _user_input.upper() == 'Y':
                 _start_new_thread(display_handlers, (main_instance,))
-                main_instance.Donwload()
+                main_instance.Download()
         else:
             not_downloadable_handler(dl_link)
         print('\n')
