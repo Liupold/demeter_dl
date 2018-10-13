@@ -1,7 +1,7 @@
 def toast(code, message):
     """beutiful printer """
     PRINT_DEBUG = False
-    PRINT_INFO = False
+    PRINT_INFO = False  # True if u want to monitor
     from colorama import Fore, Back, init, Style
     from time import time
     init(autoreset=True)
@@ -35,11 +35,12 @@ def get_info(self, url):
     from requests import get
     from requests.packages.urllib3 import disable_warnings
     from requests.exceptions import ConnectionError, MissingSchema
+    dummy_headers = {'Range': 'bytes=0-100',
+                     'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'}
     try:
         toast(0, 'Waiting for File INFO')
         dummy_request = get(
-            url, headers={'Range': 'bytes=0-100',
-                          'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'},
+            url, headers=dummy_headers,
             stream=True)
         dummy_request.close()
         toast(0, 'Recived File INFO')
@@ -51,21 +52,22 @@ def get_info(self, url):
     except ConnectionError as e:
         try:
             disable_warnings()
-            dummy_request = get(url, verify=False, stream=True, headers={'Range': 'bytes=0-100',
-                                                                         'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'})
+            dummy_request = get(url, verify=False,
+                                stream=True, headers=dummy_headers)
             self.verify = False
             dummy_request.close()
             toast(2, 'This url may contains Virus  as it\'s INSECURE')
             return dummy_request.url, dummy_request.headers
             toast(1, '{} May contains VIRUS'.format(url))
         except Exception:
-            toast(2, 'get_headers: {}'.format(e))
+            toast(2, 'get_headers[{}]: {}'.format(
+                e.__traceback__.tb_lineno, e))
         return url, {}
-    except MissingSchema as e:
+    except MissingSchema:
         toast(1, 'Do you mean http://{}/?'.format(url))
         return get_info(self, 'http://{}/'.format(url))
     except Exception as e:
-        toast(2, 'get_info: {}'.format(e))
+        toast(2, 'get_info[{}]: {}'.format(e.__traceback__.tb_lineno, e))
         return url, {}
 
 
@@ -80,16 +82,22 @@ def _is_downloadable(headers):
         return False
 
     except Exception as e:
-        toast(2, '_is_downloadable: {}'.format(e))
+        toast(2, '_is_downloadable[{}]: {}'.format(
+            e.__traceback__.tb_lineno, e))
 
 
 def get_filename(url, headers, given_url):
     """Get file name from url and headers """
+    def utf_remover(string):
+        if string[0:7] == "UTF-8''":
+            return string[7::]
+        else:
+            return string
+
     try:
         from urllib.parse import unquote
         from time import time
         from cgi import parse_header
-        url = unquote(url)
         if 'Content-Disposition' in headers:
             _param = parse_header(headers['Content-Disposition'])[1]
             if 'filename' in _param:
@@ -98,16 +106,22 @@ def get_filename(url, headers, given_url):
                     "/", "_").replace("\\", "_").replace("*", " ")
                 filename = filename.replace(">", " ").replace(
                     "<", " ").replace("?", " ").replace("|", "_")
-                return filename
+                return utf_remover(unquote(filename))
             elif 'filename*' in _param:
                 filename = _param['filename*']
                 filename = filename.replace(":", " ").replace(
                     "/", "_").replace("\\", "_").replace("*", " ")
                 filename = filename.replace(">", " ").replace(
                     "<", " ").replace("?", " ").replace("|", "_")
-                return filename
+                return utf_remover(unquote(filename))
             else:
-                print(_param)
+                filename = unquote(
+                    url.split('/')[-1]).replace('!', '').replace('?', '')
+                filename = filename.replace(":", " ").replace(
+                    "/", "_").replace("\\", "_").replace("*", " ")
+                filename = filename.replace(">", " ").replace(
+                    "<", " ").replace("?", " ").replace("|", "_")
+                return filename
         else:
             filename = unquote(
                 url.split('/')[-1]).replace('!', '').replace('?', '')
@@ -117,17 +131,18 @@ def get_filename(url, headers, given_url):
                 "<", " ").replace("?", " ").replace("|", "_")
             return filename
     except Exception as e:
-        toast(2, 'get_filename: {}'.format(e))
+        toast(2, 'get_filename[{}]: {}'.format(e.__traceback__.tb_lineno, e))
         return 'File donwloaded @ {}'.format(int(time()))
 
 
 def _is_pauseable(headers):
     """return bool for paauseable ?"""
     try:
-        if headers['Content-Length'] == '101':
-            return True
+        if 'Content-Length' in headers:
+            if headers['Content-Length'] == '101':
+                return True
     except Exception as e:
-        toast(2, '_is_pauseable: {}'.format(e))
+        toast(2, '_is_pauseable[{}]: {}'.format(e.__traceback__.tb_lineno, e))
     return False
 
 
@@ -137,12 +152,12 @@ def get_size(self):
     from requests import get
     try:
         return int(headers['Content-Range'].split('/')[-1])
-    except KeyError as e:
+    except KeyError:
         temp_requests = get(url, stream=True, verify=self.verify)
         temp_requests.close()
         return int(temp_requests.headers['Content-Length'])
     except Exception as e:
-        toast(2, 'get_size: {}'.format(e))
+        toast(2, 'get_size[{}]: {}'.format(e.__traceback__.tb_lineno, e))
     return -1
 
 
@@ -155,4 +170,4 @@ def p_unit(self):
             if magnitude > 0 and magnitude < 1000:
                 return "{} {}".format(magnitude, unit)
     except Exception as e:
-        toast(2, 'p_unit: {}'.format(e))
+        toast(2, 'p_unit[{}]: {}'.format(e.__traceback__.tb_lineno, e))

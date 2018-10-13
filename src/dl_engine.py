@@ -1,8 +1,10 @@
 from req_fn import get_info, get_filename, get_size, toast
-from req_fn import _is_pauseable, _is_downloadable
+from req_fn import _is_pauseable, _is_downloadable, p_unit
 from main_dl_fn import _download, _writer
 from smart_thread import E_Thread
 from threading import Lock, Thread
+from os.path import isdir
+from os import mkdir
 ######
 #   Made by Liupold
 #
@@ -16,7 +18,7 @@ class HarvesterEngine(object):
        *url: dowwnload url a.k.a download link
     """
 
-    def __init__(self, url):
+    def __init__(self, url, **kargs):
         try:
             self.given_url = url
             self.verify = True
@@ -28,17 +30,15 @@ class HarvesterEngine(object):
             if self.downloadable:
                 self.file_name = get_filename(
                     self.url, self.recived_headers, self.given_url)
-                toast(3, 'self.file_name@{}: {}'.format(self, self.file_name))
-                toast(0, 'recv file_name: {}'.format(self.file_name))
                 self.size = get_size(self)
                 toast(3, 'self.size@{}: {}'.format(self, self.size))
-                toast(0, 'recv file_size: {}'.format(self.size))
+                toast(0, 'FILE SIZE: {}'.format(p_unit(self.size)))
                 self.pauseable = _is_pauseable(self.recived_headers)
                 toast(3, 'self.pauseable@{}: {}'.format(self, self.pauseable))
-                toast(0, '{} Pauseable: {}'.format(
-                    self.file_name, self.pauseable))
+                toast(3, 'self.pauseable@{}: {}'.format(
+                    self, self.pauseable))
                 self.location = ''
-                self.part_lacation = ''
+                self.part_location = ''
                 # loaction of the temp part file during downloading
                 toast(3, 'self.location@{}: {}'.format(self, self.location))
                 self.paused = False
@@ -52,11 +52,39 @@ class HarvesterEngine(object):
                 self.no_of_parts = 16
                 toast(3, 'self.no_of_parts@{}: {}'.format(
                     self, self.no_of_parts))
-                self.block = True  # blocks the thread till download completes
+
+                # assign_karg
+                if 'file_name' in kargs:
+                    self.file_name = kargs.pop('file_name')
+                if 'location' in kargs:
+                    self.location = kargs.pop('location')
+                if 'part_location' in kargs:
+                    self.part_location = kargs.pop('part_location')
+                if 'max_alive_at_once' in kargs:
+                    self.max_alive_at_once = kargs.pop('max_alive_at_once')
+                if 'no_of_parts' in kargs:
+                    self.no_of_parts = kargs.pop('no_of_parts')
+                if kargs != {}:
+                    for parram in kargs.keys():
+                        toast(2, 'Invalid option! "{}"'.format(parram))
+
+                if not isdir(self.location):
+                    if self.location != '':
+                        mkdir(self.location)
+                        toast(0, '{} Directory is created'.format(
+                            self.location))
+                if not isdir(self.part_location):
+                    if self.part_location != '':
+                        mkdir(self.part_location)
+                        toast(0, '{} Directory is created'.format(
+                            self.part_location))
+                toast(3, 'self.file_name@{}: {}'.format(self, self.file_name))
+                toast(0, 'FILE NAME: {}'.format(self.file_name))
             else:
-                pass
+                toast(2, 'Not Downloadable!')
         except Exception as e:
-            toast(2, 'OpenEngine.__init__@{}: {}'.format(self, e))
+            toast(2, 'OpenEngine.__init__@{}[{}]: {}'.format(
+                self, e.__traceback__.tb_lineno, e))
 
     def Download(self, blocking=True):
         """ Start The download!
@@ -96,7 +124,9 @@ class HarvesterEngine(object):
                     pass
 
             except Exception as e:
-                toast(2, 'OpenEngine._Download@{}: {}'.format(self, e))
+                toast(2, 'OpenEngine._Download@{}[{}]: {}'.format(
+                    self, e.__traceback__.tb_lineno, e))
+                print(dir(e.__traceback__))
             finally:
                 self.downloading = False
 
@@ -114,7 +144,8 @@ class HarvesterEngine(object):
             else:
                 toast(1, 'Not Pauseable')
         except Exception as e:
-            toast(2, 'OpenEngine.Pause@{}: {}'.format(self, e))
+            toast(2, 'OpenEngine.Pause@{}[{}]: {}'.format(
+                self, e.__traceback__.tb_lineno, e))
 
     def Stop(self):
         pass
@@ -129,7 +160,8 @@ class HarvesterEngine(object):
             else:
                 toast(1, 'The File is not Resumeable or already downloading!')
         except Exception as e:
-            toast(2, 'OpenEngine.Resume@{}: {}'.format(self, e))
+            toast(2, 'OpenEngine.Resume@{}[{}]: {}'.format(
+                self, e.__traceback__.tb_lineno, e))
 
     def Get_done(self):
         if self.size is not None:
@@ -138,22 +170,13 @@ class HarvesterEngine(object):
     def Get_info(self):
 
         try:
-            _info_str = """
-                            file_name     : {}
-                            file_size     : {}
-                            url           : {}
-                            target folder : {}
-                        """.format(self.file_name, self.size,
-                                   self.given_url, self.location)
+            _info_str = "FILE NAME     : {},\nFILE SIZE     : {}({} Bytes),\nTARGET        : {}".format(self.file_name, p_unit(self.size),
+                                                                                                        self.size,
+                                                                                                        self.location)
         except Exception as e:
-            pass
             _info_str = str(id(self))
         return _info_str
 
     def __repr__(self):
-        try:
-            _repr_str = "<{}>".format(self.file_name[0:20])
-        except Exception as e:
-            pass
-            _repr_str = str(id(self))
+        _repr_str = hex(id(self))
         return _repr_str

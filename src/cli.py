@@ -1,41 +1,25 @@
+import click
 from dl_engine import HarvesterEngine
+from tqdm import tqdm
 from threading import _start_new_thread
 from time import sleep
-from req_fn import toast, p_unit
-from tqdm import tqdm
-from os import get_terminal_size, mkdir
-from os.path import isdir
-# in CLI the pause and resume is not implemented
-# for pausing use CRTL-C or exit the Download
-# for resuming just start the download if resumable it will resume itself
-__version__ = '0.2.0'
-__dl_location__ = 'Downloads/'
-if not isdir(__dl_location__):
-    mkdir(__dl_location__)
+from os import get_terminal_size
+
+__version__ = 1.0
 
 
 def display_handlers(self):
+    sleep(1)
     print('\n\n')
-    sleep(0.1)
-    buff = 0
-    pbar = tqdm(total=self.size, unit_scale=1, unit='B')
+    buff = self.done
+    pbar = tqdm(total=self.size, unit_scale=1, unit='B',
+                initial=buff, unit_divisor=1024)
     while not self.completed:
         done = self.done
         pbar.update(done - buff)
         buff = done
-        sleep(0.00167)
-        pbar.refresh()
     pbar.close()
     sleep(0.1)
-
-
-def not_downloadable_handler(url):
-    import webbrowser
-    toast(1, 'File not download able or link expired')
-    print('Open in web browser? (Y/N)')
-    if input('').upper() == 'Y':
-        toast(0, 'Opening in web browser')
-        webbrowser.open(url)
 
 
 def yt_handler(dl_link):
@@ -70,33 +54,47 @@ def yt_handler(dl_link):
                 print('Try again!')
 
 
+@click.command()
+@click.option('--location', default='Downloads/', help='download location')
+@click.option('--part_location', default='Downloads/tmp/',
+              help='tmp location')
+@click.option('--max_alive_at_once', default=8,
+              help='Max thread to run in || during downloading')
+@click.option('--no_of_parts', default=16,
+              help='number of fragment the file is devided')
+def cli(location, part_location, max_alive_at_once, no_of_parts):
+    while True:
+        try:
+            url = input('URL-->')
+            if 'https://www.youtube.com/watch?v=' == url[0:32] or'https://youtu.be/' == url[0:17]:
+                url, yt_filename = yt_handler(url)
+                main_instance = HarvesterEngine(url, location=location,
+                                                part_location=part_location,
+                                                max_alive_at_once=max_alive_at_once,
+                                                no_of_parts=no_of_parts,
+                                                file_name=yt_filename)
+            else:
+                main_instance = HarvesterEngine(url, location=location,
+                                                part_location=part_location,
+                                                max_alive_at_once=max_alive_at_once,
+                                                no_of_parts=no_of_parts)
+            print(main_instance.Get_info())
+            if main_instance.downloadable:
+                _start_new_thread(display_handlers, (main_instance,))
+                main_instance.Download()
+            click.echo('\n\n')
+            print('\n')
+            print('\a')
+            print('=' * get_terminal_size()[0])
+        except KeyboardInterrupt:
+            break
+
+
 if __name__ == '__main__':
-    print('------------ Open Downloader ------------')
+    print('-------------- Harvester ---------------')
     print('Version: {}'.format(__version__), 'Build with Python 3.6.5')
     print('Author: liupold @ github')
     print('Support: liupold@programmer.net')
     print('-----------------------------------------')
-    while True:
-        print('\n')
-        dl_link = input('URL-->')
-        if 'https://www.youtube.com/watch?v=' == dl_link[0:32]:
-            dl_link, yt_filename = yt_handler(dl_link)
-            main_instance = HarvesterEngine(dl_link)
-            main_instance.location = __dl_location__
-            main_instance.file_name = yt_filename
-        else:
-            main_instance = HarvesterEngine(dl_link)
-            main_instance.location = __dl_location__
-        if main_instance.downloadable:
-            print('\n')
-            print("File Name: {}".format(main_instance.file_name))
-            print('File Size: {}'.format(p_unit(main_instance.size)))
-            _user_input = input('Did we got that correct? (Y/N)')
-            if _user_input.upper() == 'Y':
-                _start_new_thread(display_handlers, (main_instance,))
-                main_instance.Download()
-        else:
-            not_downloadable_handler(dl_link)
-        print('\n')
-        print('\a')
-        print('=' * get_terminal_size()[0])
+    print('\n\n')
+    cli()
