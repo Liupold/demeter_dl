@@ -4,6 +4,7 @@ from tqdm import tqdm
 from threading import _start_new_thread
 from time import sleep
 from os import get_terminal_size
+from req_fn import toast
 
 __version__ = 1.0
 
@@ -20,6 +21,15 @@ def display_handlers(self):
         buff = done
     pbar.close()
     sleep(0.1)
+
+
+def not_downloadable_handler(url):
+    import webbrowser
+    toast(1, 'File not download able or link expired')
+    print('Open in web browser? (Y/N)')
+    if input('').upper() == 'Y':
+        toast(0, 'Opening in web browser')
+        webbrowser.open(url)
 
 
 def yt_handler(dl_link):
@@ -56,7 +66,7 @@ def yt_handler(dl_link):
 
 @click.command()
 @click.option('--location', default='Downloads/', help='download location')
-@click.option('--part_location', default='Downloads/tmp/',
+@click.option('--part_location', default='Downloads/Barn(Harvester storage)/',
               help='tmp location')
 @click.option('--max_alive_at_once', default=8,
               help='Max thread to run in || during downloading')
@@ -82,6 +92,8 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
             if main_instance.downloadable:
                 _start_new_thread(display_handlers, (main_instance,))
                 main_instance.Download()
+            else:
+                not_downloadable_handler(url)
             click.echo('\n\n')
             print('\n')
             print('\a')

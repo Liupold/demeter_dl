@@ -142,7 +142,8 @@ def _is_pauseable(headers):
             if headers['Content-Length'] == '101':
                 return True
     except Exception as e:
-        toast(2, '_is_pauseable[{}]: {}'.format(e.__traceback__.tb_lineno, e))
+        toast(2, '_is_pauseable[{}]: {}'.format(
+            e.__traceback__.tb_lineno, e))
     return False
 
 
@@ -153,12 +154,15 @@ def get_size(self):
     try:
         return int(headers['Content-Range'].split('/')[-1])
     except KeyError:
-        temp_requests = get(url, stream=True, verify=self.verify)
-        temp_requests.close()
-        return int(temp_requests.headers['Content-Length'])
-    except Exception as e:
-        toast(2, 'get_size[{}]: {}'.format(e.__traceback__.tb_lineno, e))
-    return -1
+        try:
+            temp_requests = get(url, stream=True, verify=self.verify)
+            temp_requests.close()
+            return int(temp_requests.headers['Content-Length'])
+        except KeyError:
+            return None
+        except Exception as e:
+            toast(2, 'get_size[{}]: {}'.format(e.__traceback__.tb_lineno, e))
+    return None
 
 
 def p_unit(self):

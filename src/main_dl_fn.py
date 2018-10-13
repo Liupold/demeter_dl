@@ -3,6 +3,21 @@ def _download(self, _range, _id):
     from req_fn import toast
     from os.path import getsize
     from os import remove
+
+    def __main():
+        main_request = get(
+            self.url, headers={
+                'Range': 'bytes={}-{}'.format(first, _range[1]),
+                'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'},
+            stream=True, verify=self.verify)
+        with open(part_name, 'ab+') as file:
+            for data in main_request.iter_content(chunk_size=4096):
+                written_bytes = file.write(data)
+                if self.paused:
+                    break
+                with self.update_lock:
+                    self.done += written_bytes
+
     try:
         if self.no_of_parts == 1:
             part_name = self.location + self.file_name
@@ -23,34 +38,17 @@ def _download(self, _range, _id):
                 remove(part_name)
         except FileNotFoundError:
             pass
-        if _id == (self.no_of_parts - 1):
-            if first < _range[1]:
-                main_request = get(
-                    self.url, headers={
-                        'Range': 'bytes={}-{}'.format(first, _range[1]),
-                        'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'},
-                    stream=True, verify=self.verify)
-                with open(part_name, 'ab+') as file:
-                    for data in main_request.iter_content(chunk_size=4096):
-                        written_bytes = file.write(data)
-                        if self.paused:
-                            break
-                        with self.update_lock:
-                            self.done += written_bytes
+        if _range[1] is not None:
+            if _id == (self.no_of_parts - 1):
+                if first < _range[1]:
+                    __main()
+            else:
+                if first < (_range[1] + 1):
+                    __main()
+
         else:
-            if first < (_range[1] + 1):
-                main_request = get(
-                    self.url, headers={
-                        'Range': 'bytes={}-{}'.format(first, _range[1]),
-                        'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'},
-                    stream=True, verify=self.verify)
-                with open(part_name, 'ab+') as file:
-                    for data in main_request.iter_content(chunk_size=4096):
-                        written_bytes = file.write(data)
-                        if self.paused:
-                            break
-                        with self.update_lock:
-                            self.done += written_bytes
+            __main()
+
         self.no_completed += 1
     except Exception as e:
         toast(2, '_download[{}]: {}'.format(e.__traceback__.tb_lineno, e))
@@ -73,8 +71,8 @@ def _writer(self):
                                 self._written += _written
             if getsize(self.location + self.file_name) == self.size:
                 for _ in range(self.no_of_parts):
-                    remove(self.part_location + self.file_name + '.' +
-                           str(_) + '.hbp')
+                    # remove(self.part_location + self.file_name + '.' +
+                    #        str(_) + '.hbp')
                     pass
         except Exception as e:
             toast(2, '_writer[{}]: {}'.format(e.__traceback__.tb_lineno, e))

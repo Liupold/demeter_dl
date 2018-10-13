@@ -32,7 +32,7 @@ class HarvesterEngine(object):
                     self.url, self.recived_headers, self.given_url)
                 self.size = get_size(self)
                 toast(3, 'self.size@{}: {}'.format(self, self.size))
-                toast(0, 'FILE SIZE: {}'.format(p_unit(self.size)))
+                toast(0, 'FILE SIZE: {}'.format(self.size))
                 self.pauseable = _is_pauseable(self.recived_headers)
                 toast(3, 'self.pauseable@{}: {}'.format(self, self.pauseable))
                 toast(3, 'self.pauseable@{}: {}'.format(
@@ -102,10 +102,12 @@ class HarvesterEngine(object):
                 if self.downloadable:
                     toast(0, 'Starting Download!')
                     self.downloading = True
-                    if (not self.pauseable) or (self.size == -1):
-                        self.no_of_parts = 1
                     mother_thread = E_Thread(_download, Max_thread=8)
-                    Part_length = self.size // self.no_of_parts
+                    if (not self.pauseable) or (self.size is None):
+                        self.no_of_parts = 1
+                        Part_length = 0
+                    else:
+                        Part_length = self.size // self.no_of_parts
                     toast(3, 'Part_length@_Download@{}: {}'.format(
                         self, Part_length))
                     for _ in range(self.no_of_parts - 1):
@@ -126,7 +128,6 @@ class HarvesterEngine(object):
             except Exception as e:
                 toast(2, 'OpenEngine._Download@{}[{}]: {}'.format(
                     self, e.__traceback__.tb_lineno, e))
-                print(dir(e.__traceback__))
             finally:
                 self.downloading = False
 
@@ -170,9 +171,15 @@ class HarvesterEngine(object):
     def Get_info(self):
 
         try:
-            _info_str = "FILE NAME     : {},\nFILE SIZE     : {}({} Bytes),\nTARGET        : {}".format(self.file_name, p_unit(self.size),
-                                                                                                        self.size,
-                                                                                                        self.location)
+            if self.size is None:
+                size = 'No response from Server, None'
+                p_size = ''
+            else:
+                size = self.size
+                p_size = p_unit(size)
+            _info_str = "FILE NAME     : {},".format(self.file_name)
+            _info_str += "\nFILE SIZE     : {}({} Bytes),".format(p_size, size)
+            _info_str += "\nTARGET        : {}".format(self.location)
         except Exception as e:
             _info_str = str(id(self))
         return _info_str
