@@ -2,30 +2,29 @@ def toast(code, message):
     """beutiful printer """
     PRINT_DEBUG = False
     PRINT_INFO = False  # True if u want to monitor
-    from colorama import Fore, Back, init, Style
+    from colorama import Fore, Back, Style
     from time import time
-    init(autoreset=True)
     message = str(message)
     if code == 0 and PRINT_INFO:
         print('[', end='')
-        print(Fore.GREEN + Style.BRIGHT + 'INFO', end='')
+        print(Fore.GREEN + Style.BRIGHT + 'INFO' + Style.RESET_ALL, end='')
         print('] ' + message)
     if code == 1:
         print('[', end='')
-        print(Fore.YELLOW + 'WARNING', end='')
+        print(Fore.YELLOW + 'WARNING' + Style.RESET_ALL, end='')
         print('] ' + message)
         with open('logs.txt', 'a+') as f:
             f.write('[WARNING@{}]: \n {} \n\n'.format(time(), message))
     if code == 2:
         print('[', end='')
-        print(Fore.RED + 'ERROR', end='')
+        print(Fore.RED + 'ERROR' + Style.RESET_ALL, end='')
         print('] ' + message)
         with open('logs.txt', 'a+') as f:
             f.write('[ERROR@{}]: \n {} \n\n'.format(time(), message))
     if code == 3:
         if PRINT_DEBUG:
             print(Fore.WHITE + Back.BLUE +
-                  '\b[DEBUG] {}'.format(message))
+                  '\b[DEBUG] {}' + Style.RESET_ALL.format(message))
         with open('logs.txt', 'a+') as f:
             f.write('[DEBUG@{}]: \n {} \n\n'.format(time(), message))
 

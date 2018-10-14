@@ -71,8 +71,8 @@ def _writer(self):
                                 self._written += _written
             if getsize(self.location + self.file_name) == self.size:
                 for _ in range(self.no_of_parts):
-                    # remove(self.part_location + self.file_name + '.' +
-                    #        str(_) + '.hbp')
+                    remove(self.part_location + self.file_name + '.' +
+                           str(_) + '.hbp')
                     pass
         except Exception as e:
             toast(2, '_writer[{}]: {}'.format(e.__traceback__.tb_lineno, e))
