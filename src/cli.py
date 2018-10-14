@@ -78,28 +78,33 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
             url = input('URL-->')
             if 'https://www.youtube.com/watch?v=' == url[0:32] or'https://youtu.be/' == url[0:17]:
                 url, yt_filename = yt_handler(url)
+                print("Hang on Getting File Info")
                 main_instance = HarvesterEngine(url, location=location,
                                                 part_location=part_location,
                                                 max_alive_at_once=max_alive_at_once,
                                                 no_of_parts=no_of_parts,
                                                 file_name=yt_filename)
             else:
+                print("Hang on Getting File Info")
                 main_instance = HarvesterEngine(url, location=location,
                                                 part_location=part_location,
                                                 max_alive_at_once=max_alive_at_once,
                                                 no_of_parts=no_of_parts)
+            print('\n\n')
             print(main_instance.Get_info())
             if main_instance.downloadable:
                 _start_new_thread(display_handlers, (main_instance,))
                 main_instance.Download()
             else:
                 not_downloadable_handler(url)
-            click.echo('\n\n')
-            print('\n')
+            sleep(1)
+            print('\n\n')
             print('\a')
             print('=' * get_terminal_size()[0])
+            print('\n\n')
         except KeyboardInterrupt:
-            break
+            print('\n')
+            exit()
 
 
 if __name__ == '__main__':
