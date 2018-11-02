@@ -4,4 +4,3 @@ pafy
 youtube-dl
 click
 progressbar2
-urllib
