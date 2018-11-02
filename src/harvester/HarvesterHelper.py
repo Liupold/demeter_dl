@@ -148,7 +148,7 @@ def get_info(url):
     except Exception as e:
         __HarvesterHelperLOGer(2, 'get_info[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
-        return url, {}, False
+        raise e
 
 
 def _is_downloadable(headers):
@@ -185,6 +185,7 @@ def _is_downloadable(headers):
     except Exception as e:
         __HarvesterHelperLOGer(2, '_is_downloadable[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
+        raise e
 
 
 def get_filename(url, headers):
@@ -387,6 +388,7 @@ def _download(self, _range, _id):
     except Exception as e:
         __HarvesterHelperLOGer(2, '_download[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
+        raise e
 
 
 # this is a impure function and not recomended to use outside of this project
@@ -413,6 +415,7 @@ def _writer(self):
         except Exception as e:
             __HarvesterHelperLOGer(2, '_writer[{}]: {}'.format(
                 e.__traceback__.tb_lineno, e))
+            raise e
 
 
 class E_Thread(object):

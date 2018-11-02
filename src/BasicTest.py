@@ -33,14 +33,16 @@ class TestHarvesterEngine(unittest.TestCase):
         self.assertGreater(self.test_download_instance.done, 0)
         self.assertEqual(self.test_download_instance.block, False)
         self.assertEqual(self.test_download_instance.downloading, True)
-        self.test_download_instance.Download(False)
+        with self.assertRaises(ValueError):
+            self.test_download_instance.Download(False)
         self.test_download_instance.Pause()
         self.assertEqual(self.test_download_instance.downloading, False)
         self.assertEqual(self.test_download_instance.stoped, True)
         self.assertLess(self.test_download_instance.Get_done(), 1)
 
     def tearDown(self):
-        shutil.rmtree('Harvester_tmp/', ignore_errors=True)
+        sleep(5)  # <- time give to the engine for roll down.
+        shutil.rmtree('Harvester_tmp/')
 
 
 if __name__ == '__main__':

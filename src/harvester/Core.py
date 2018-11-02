@@ -98,6 +98,7 @@ class HarvesterEngine(object):
                                      'HarvesterEngine.__init__@{}[{}]: {}'
                                      .format(
                                          self, e.__traceback__.tb_lineno, e))
+            raise e
 
     def Download(self, blocking=True):
         """ Start The download!
@@ -107,6 +108,8 @@ class HarvesterEngine(object):
         """
         self.update_lock = Lock()
         self.block = blocking
+        if self.downloadable and self.downloading:
+            raise ValueError('Allready Downloading, self.downloading = True')
 
         def _Download():
             try:
@@ -139,10 +142,11 @@ class HarvesterEngine(object):
 
                     mother_thread.join()
                     self.completed = True
+                    self.downloading = False
                     HarvesterHelper._writer(self)
                 else:
-                    raise AttributeError(
-                        'Allready Downloading, self.downloading = True')
+                    raise ValueError('\
+                        Allready Downloading, self.downloading = True')
 
             except Exception as e:
                 self._HarvesterCoreLOGer(2,
@@ -150,8 +154,8 @@ class HarvesterEngine(object):
                                      {}'.format(
                                              self,
                                              e.__traceback__.tb_lineno, e))
-            finally:
                 self.downloading = False
+                quit()
 
         main_thread = Thread(target=_Download, daemon=True)
         main_thread.start()
@@ -174,6 +178,7 @@ class HarvesterEngine(object):
             self._HarvesterCoreLOGer(2,
                                      'HarvesterEngine.Pause@{}[{}]: {}'.format(
                                          self, e.__traceback__.tb_lineno, e))
+            raise e
 
     def Stop(self):
         if self.downloadable and self.downloading:
