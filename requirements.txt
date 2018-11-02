@@ -1,0 +1,6 @@
+requests
+colorama
+click
+progressbar2
+youtube-dl
+pafy
