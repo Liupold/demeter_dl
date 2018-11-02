@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/Liupold/harvester.svg?branch=master)](https://travis-ci.org/Liupold/harvester)
+[![image](https://travis-ci.org/Liupold/harvester.svg?branch=master)](https://travis-ci.org/Liupold/harvester)
+[![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/Liupold)
 
 Open Download Manager (with OpenEngine)
 =======================================
@@ -6,7 +7,7 @@ Open Download Manager (with OpenEngine)
 Aim of the Project:
 -------------------
 
-This is a project aim to provide the *Fast , Free & Efficient* way to download
+This is a project aPm to provide the *Fast , Free & Efficient* way to download
 files from internet. At the same time keeping the code readable and flexible.
 
 ![](harvest.png)
