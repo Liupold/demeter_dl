@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Liupold/harvester.svg?branch=master)](https://travis-ci.org/Liupold/harvester)
+
 Open Download Manager (with OpenEngine)
 =======================================
 
