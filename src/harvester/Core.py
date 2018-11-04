@@ -155,7 +155,7 @@ class HarvesterEngine(object):
                                              self,
                                              e.__traceback__.tb_lineno, e))
                 self.downloading = False
-                quit()
+                raise e
 
         main_thread = Thread(target=_Download, daemon=True)
         main_thread.start()
