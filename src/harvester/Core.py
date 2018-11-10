@@ -106,10 +106,13 @@ class HarvesterEngine(object):
             # default blocking is True
             self.Download(blocking=True)
         """
+
         self.update_lock = Lock()
         self.block = blocking
         if self.downloadable and self.downloading:
             raise ValueError('Allready Downloading, self.downloading = True')
+            
+        self.downloading = True
 
         def _Download():
             try:
@@ -119,7 +122,7 @@ class HarvesterEngine(object):
                 if self.downloadable and (not self.downloading):
                     self._HarvesterCoreLOGer(0, 'Starting Download!')
                     self.stoped = False
-                    self.downloading = True
+
                     mother_thread = HarvesterHelper.E_Thread(
                         HarvesterHelper._download, Max_thread=8)
                     if (not self.pauseable) or (self.size is None):
