@@ -32,6 +32,7 @@ class TestHarvesterEngine(unittest.TestCase):
         sleep(5)
         self.assertGreater(self.test_download_instance.done, 0)
         self.assertEqual(self.test_download_instance.block, False)
+        sleep(0.1)
         self.assertEqual(self.test_download_instance.downloading, True)
         with self.assertRaises(ValueError):
             self.test_download_instance.Download(False)
