@@ -119,8 +119,8 @@ class HarvesterEngine(object):
                                              self, self.block))
                 if self.downloadable and (not self.downloading):
                     self._HarvesterCoreLOGer(0, 'Starting Download!')
-                    self.stoped = False
                     self.downloading = True
+                    self.stoped = False
                     mother_thread = HarvesterHelper.E_Thread(
                         HarvesterHelper._download, Max_thread=8)
                     if (not self.pauseable) or (self.size is None):
