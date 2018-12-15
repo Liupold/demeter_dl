@@ -347,9 +347,9 @@ def _download(self, _range, _id):
             stream=True, verify=self.verify)
         with open(part_name, 'ab+') as file:
             for data in main_request.iter_content(chunk_size=4096):
-                written_bytes = file.write(data)
+                file.write(data)
                 with self.update_lock:
-                    self.done += written_bytes
+                    self.done += len(data)
                 if self.stoped:
                     break
 

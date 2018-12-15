@@ -117,9 +117,10 @@ class HarvesterEngine(object):
                 self._HarvesterCoreLOGer(3, 'self.block@_Download@{}: {}'
                                          .format(
                                              self, self.block))
+
                 if self.downloadable and (not self.downloading):
-                    self._HarvesterCoreLOGer(0, 'Starting Download!')
                     self.downloading = True
+                    self._HarvesterCoreLOGer(0, 'Starting Download!')
                     self.stoped = False
                     mother_thread = HarvesterHelper.E_Thread(
                         HarvesterHelper._download, Max_thread=8)
@@ -156,12 +157,13 @@ class HarvesterEngine(object):
                                              e.__traceback__.tb_lineno, e))
                 self.downloading = False
                 self.DownloadError = e
+                print(e)
+                mother_thread.close()
 
         main_thread = Thread(target=_Download, daemon=True)
         main_thread.start()
         if self.block:
             main_thread.join()
-            pass
 
     def Pause(self):
         try:

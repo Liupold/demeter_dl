@@ -10,12 +10,12 @@ class TestHarvesterEngine(unittest.TestCase):
 
     def setUp(self):
         self.test_download_instance = HarvesterEngine(
-            "https://speed.hetzner.de/100MB.bin", location="Harvester_tmp/",
+            "http://www.ovh.net/files/10Mb.dat", location="Harvester_tmp/",
             part_location="Harvester_tmp/")
 
     def test_init_vars(self):
         self.assertEqual(self.test_download_instance.url,
-                         'https://speed.hetzner.de/100MB.bin')
+                         'http://www.ovh.net/files/10Mb.dat')
         self.assertEqual(self.test_download_instance.verify, True)
         self.assertIsInstance(
             self.test_download_instance._HarvesterCoreLOGer,
@@ -29,10 +29,10 @@ class TestHarvesterEngine(unittest.TestCase):
     def test_Download_and_Pause(self):
         self.assertEqual(self.test_download_instance.block, True)
         self.test_download_instance.Download(False)
-        sleep(5)
+        sleep(1)
+        print(self.test_download_instance.done)
         self.assertGreater(self.test_download_instance.done, 0)
         self.assertEqual(self.test_download_instance.block, False)
-        sleep(0.1)
         self.assertEqual(self.test_download_instance.downloading, True)
         with self.assertRaises(ValueError):
             self.test_download_instance.Download(False)
@@ -43,7 +43,7 @@ class TestHarvesterEngine(unittest.TestCase):
         self.assertEqual(self.test_download_instance.completed, False)
 
     def tearDown(self):
-        sleep(5)  # <- time give to the engine for roll down.
+        sleep(3)  # <- time give to the engine for roll down.
         shutil.rmtree('Harvester_tmp/', ignore_errors=True)
 
 
