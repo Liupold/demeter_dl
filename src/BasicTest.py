@@ -10,12 +10,12 @@ class TestHarvesterEngine(unittest.TestCase):
 
     def setUp(self):
         self.test_download_instance = HarvesterEngine(
-            "http://www.ovh.net/files/10Mb.dat", location="Harvester_tmp/",
+            "http://www.ovh.net/files/100Mb.dat", location="Harvester_tmp/",
             part_location="Harvester_tmp/")
 
     def test_init_vars(self):
         self.assertEqual(self.test_download_instance.url,
-                         'http://www.ovh.net/files/10Mb.dat')
+                         'http://www.ovh.net/files/100Mb.dat')
         self.assertEqual(self.test_download_instance.verify, True)
         self.assertIsInstance(
             self.test_download_instance._HarvesterCoreLOGer,
@@ -29,7 +29,7 @@ class TestHarvesterEngine(unittest.TestCase):
     def test_Download_and_Pause(self):
         self.assertEqual(self.test_download_instance.block, True)
         self.test_download_instance.Download(False)
-        sleep(3)
+        sleep(2)
         print(self.test_download_instance.done)
         self.assertGreater(self.test_download_instance.done, 0)
         self.assertEqual(self.test_download_instance.block, False)
