@@ -10,12 +10,12 @@ class TestHarvesterEngine(unittest.TestCase):
 
     def setUp(self):
         self.test_download_instance = HarvesterEngine(
-            "http://www.ovh.net/files/100Mb.dat", location="Harvester_tmp/",
+            "http://www.ovh.net/files/10Gb.dat", location="Harvester_tmp/",
             part_location="Harvester_tmp/")
 
     def test_init_vars(self):
         self.assertEqual(self.test_download_instance.url,
-                         'http://www.ovh.net/files/100Mb.dat')
+                         'http://www.ovh.net/files/10Gb.dat')
         self.assertEqual(self.test_download_instance.verify, True)
         self.assertIsInstance(
             self.test_download_instance._HarvesterCoreLOGer,
