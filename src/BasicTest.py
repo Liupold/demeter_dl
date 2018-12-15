@@ -29,7 +29,7 @@ class TestHarvesterEngine(unittest.TestCase):
     def test_Download_and_Pause(self):
         self.assertEqual(self.test_download_instance.block, True)
         self.test_download_instance.Download(False)
-        sleep(1)
+        sleep(3)
         print(self.test_download_instance.done)
         self.assertGreater(self.test_download_instance.done, 0)
         self.assertEqual(self.test_download_instance.block, False)
