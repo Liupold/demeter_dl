@@ -17,9 +17,6 @@ class TestHarvesterEngine(unittest.TestCase):
         self.assertEqual(self.test_download_instance.url,
                          'http://www.ovh.net/files/10Gb.dat')
         self.assertEqual(self.test_download_instance.verify, True)
-        self.assertIsInstance(
-            self.test_download_instance._HarvesterCoreLOGer,
-            HarvesterHelper.LOG)
         self.assertIs(
             type(self.test_download_instance.recived_headers),
             CaseInsensitiveDict)
