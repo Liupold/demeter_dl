@@ -1,38 +1,31 @@
 from threading import Thread, _start_new_thread, Lock
 from queue import Queue
 from time import sleep
+import logging
 
 
 class LOG(object):
     """
     simple loger class return loging function as a callable instance
-
     init details:
-
         Return None, takes PRINT_DEBUG, PRINT_INFO, PRINT_WARN, PRINT_ERROR
-
         Parameters
         ----------
         PRINT_DEBUG(bool):
             if true debug messege will be displayed
             (default: False)
-
         PRINT_INFO(bool):
             if true info messege will be displayed
             (default: True)
-
         PRINT_WARN(bool):
             if true  warnings will be displayed
             (default: True)
-
         PRINT_ERROR(bool):
             if true error messege will be displayed
             (default: True)
-
         Returns
         -------
         None
-
         """
 
     def __init__(self, PRINT_INFO=True, PRINT_WARN=True,
@@ -47,7 +40,6 @@ class LOG(object):
         Return None,
         takes code, message
         print the nessary log
-
         Parameters
         ----------
         code(int):
@@ -55,18 +47,14 @@ class LOG(object):
             1: waring level
             2: error level
             3: debug level
-
         message(str):
             log message, message to be displayed
             to the user
-
         Returns
         -------
         None
-
         """
         from colorama import Fore, Back, Style
-        from time import time
         message = str(message)
         if code == 0 and self.PRINT_INFO:
             print('[', end='')
@@ -76,23 +64,20 @@ class LOG(object):
             print('[', end='')
             print(Fore.YELLOW + 'WARNING' + Style.RESET_ALL, end='')
             print('] ' + message)
-            with open('logs.txt', 'a+') as f:
-                f.write('[WARNING@{}]: \n {} \n\n'.format(time(), message))
         if code == 2 and self.PRINT_ERROR:
             print('[', end='')
             print(Fore.RED + 'ERROR' + Style.RESET_ALL, end='')
             print('] ' + message)
-            with open('logs.txt', 'a+') as f:
-                f.write('[ERROR@{}]: \n {} \n\n'.format(time(), message))
         if code == 3 and self.PRINT_DEBUG:
             if self.PRINT_DEBUG:
                 print(Fore.WHITE + Back.BLUE +
                       '\b[DEBUG] {}' + Style.RESET_ALL.format(message))
-            with open('logs.txt', 'a+') as f:
-                f.write('[DEBUG@{}]: \n {} \n\n'.format(time(), message))
 
 
-__HarvesterHelperLOGer = LOG(PRINT_INFO=False)
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] :: %(message)s",
+    datefmt='%d-%b-%Y %H:%M:%S',
+    filename='logs.log', level=logging.DEBUG)
 
 
 def get_info(url):
@@ -117,12 +102,12 @@ def get_info(url):
     dummy_headers = {'Range': 'bytes=0-100',
                      'User-Agent': 'Mozilla/5.0(X11; Linux x86_64)'}
     try:
-        __HarvesterHelperLOGer(0, 'Waiting for File INFO')
+        logging.info('Waiting for File INFO')
         dummy_request = get(
             url, headers=dummy_headers,
             stream=True)
         dummy_request.close()
-        __HarvesterHelperLOGer(0, 'Recived File INFO')
+        logging.info('Recived File INFO')
         # contains all the info
         recived_headers = dummy_request.headers
         final_url = dummy_request.url  # return the final url after redirecting
@@ -134,19 +119,18 @@ def get_info(url):
             dummy_request = get(url, verify=False,
                                 stream=True, headers=dummy_headers)
             dummy_request.close()
-            __HarvesterHelperLOGer(
-                2, 'This url may contains Virus  as it\'s INSECURE')
+            logging.error('This url may contains Virus  as it\'s INSECURE')
             return dummy_request.url, dummy_request.headers, False
-            __HarvesterHelperLOGer(1, '{} May contains VIRUS'.format(url))
+            logging.warning('{} May contains VIRUS'.format(url))
         except Exception:
-            __HarvesterHelperLOGer(2, 'get_headers[{}]: {}'.format(
+            logging.error('get_headers[{}]: {}'.format(
                 e.__traceback__.tb_lineno, e))
         return url, {}, False
     except MissingSchema:
-        __HarvesterHelperLOGer(1, 'Do you mean http://{}/?'.format(url))
+        logging.warning('Do you mean http://{}/?'.format(url))
         return get_info('http://{}/'.format(url))
     except Exception as e:
-        __HarvesterHelperLOGer(2, 'get_info[{}]: {}'.format(
+        logging.critical('get_info[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
         raise e
 
@@ -183,7 +167,7 @@ def _is_downloadable(headers):
         return False
 
     except Exception as e:
-        __HarvesterHelperLOGer(2, '_is_downloadable[{}]: {}'.format(
+        logging.critical('_is_downloadable[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
         raise e
 
@@ -254,7 +238,7 @@ def get_filename(url, headers):
                 "<", " ").replace("?", " ").replace("|", "_")
             return filename
     except Exception as e:
-        __HarvesterHelperLOGer(2, 'get_filename[{}]: {}'.format(
+        logging.critical('get_filename[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
         return 'File donwloaded @ {}'.format(int(time()))
 
@@ -287,7 +271,7 @@ def _is_pauseable(headers):
             if headers['Content-Length'] == '101':
                 return True
     except Exception as e:
-        __HarvesterHelperLOGer(2, '_is_pauseable[{}]: {}'.format(
+        logging.critical('_is_pauseable[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
     return False
 
@@ -308,7 +292,7 @@ def get_size(self):
         except KeyError:
             return None
         except Exception as e:
-            __HarvesterHelperLOGer(2, 'get_size[{}]: {}'.format(
+            logging.critical('get_size[{}]: {}'.format(
                 e.__traceback__.tb_lineno, e))
     return None
 
@@ -328,7 +312,7 @@ def p_unit(self):
             if magnitude > 0 and magnitude < 1000:
                 return "{} {}".format(magnitude, unit)
     except Exception as e:
-        __HarvesterHelperLOGer(2, 'p_unit[{}]: {}'.format(
+        logging.critical('p_unit[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
 
 
@@ -369,7 +353,7 @@ def _download(self, _range, _id):
                 self.done += _already_done
                 first += _already_done
             else:
-                __HarvesterHelperLOGer(1, 'Opps! Not Resumeable it\'s seems')
+                logging.warning('Opps! Not Resumeable it\'s seems')
                 remove(part_name)
         except FileNotFoundError:
             pass
@@ -386,7 +370,7 @@ def _download(self, _range, _id):
 
         self.no_completed += 1
     except Exception as e:
-        __HarvesterHelperLOGer(2, '_download[{}]: {}'.format(
+        logging.critical('_download[{}]: {}'.format(
             e.__traceback__.tb_lineno, e))
         raise e
 
@@ -413,7 +397,7 @@ def _writer(self):
                            str(_) + '.hbp')
                     pass
         except Exception as e:
-            __HarvesterHelperLOGer(2, '_writer[{}]: {}'.format(
+            logging.critical('_writer[{}]: {}'.format(
                 e.__traceback__.tb_lineno, e))
             raise e
 

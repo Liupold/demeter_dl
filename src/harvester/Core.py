@@ -2,25 +2,25 @@ from harvester import HarvesterHelper
 from threading import Lock, Thread
 from os.path import isdir
 from os import mkdir
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] :: %(message)s",
+    datefmt='%d-%b-%Y %H:%M:%S',
+    filename='logs.log', level=logging.DEBUG)
 
 
 class HarvesterEngine(object):
     def __init__(self, url, **kargs):
         try:
-            if 'print_info' in kargs:
-                PRINT_INFO = kargs.pop('print_info')
-                self._HarvesterCoreLOGer = HarvesterHelper.LOG(
-                    PRINT_INFO=PRINT_INFO)
-            else:
-                self._HarvesterCoreLOGer = HarvesterHelper.LOG()
+            logging.info("\n\n\n\n\n\nINITIALISING:")
             self.given_url = url
             self.verify = True
             self.url, self.recived_headers,\
                 self.verify = HarvesterHelper.get_info(
                     url)
-            self._HarvesterCoreLOGer(3, 'self.url@{}: {}'
-                                     .format(self, self.url))
-            self._HarvesterCoreLOGer(3, 'self.recived_headers@{}: {}'.format(
+            logging.debug('self.url@{}: {}'.format(self, self.url))
+            logging.debug('self.recived_headers@{}: {}'.format(
                 self, self.recived_headers))
             self.downloadable = HarvesterHelper._is_downloadable(
                 self.recived_headers)
@@ -28,20 +28,19 @@ class HarvesterEngine(object):
                 self.file_name = HarvesterHelper.get_filename(
                     self.url, self.recived_headers)
                 self.size = HarvesterHelper.get_size(self)
-                self._HarvesterCoreLOGer(
-                    3, 'self.size@{}: {}'.format(self, self.size))
-                self._HarvesterCoreLOGer(0, 'FILE SIZE: {}'.format(self.size))
+                logging.debug('self.size@{}: {}'.format(self, self.size))
+                logging.info('FILE SIZE: {}'.format(self.size))
                 self.pauseable = HarvesterHelper._is_pauseable(
                     self.recived_headers)
-                self._HarvesterCoreLOGer(
-                    3, 'self.pauseable@{}: {}'.format(self, self.pauseable))
-                self._HarvesterCoreLOGer(3, 'self.pauseable@{}: {}'.format(
+                logging.debug('self.pauseable@{}: {}'.format(
+                    self, self.pauseable))
+                logging.debug('self.pauseable@{}: {}'.format(
                     self, self.pauseable))
                 self.location = ''
                 self.part_location = ''
                 # loaction of the temp part file during downloading
-                self._HarvesterCoreLOGer(
-                    3, 'self.location@{}: {}'.format(self, self.location))
+                logging.debug('self.location@{}: {}'.format(
+                    self, self.location))
                 self.stoped = False
                 self.downloading = False
                 self.completed = False
@@ -49,11 +48,11 @@ class HarvesterEngine(object):
                 self.block = True
                 self.no_completed = 0  # how many threads completed
                 self.max_alive_at_once = 8
-                self._HarvesterCoreLOGer(3, 'self.max_alive_at_once@{}: {}'
-                                         .format(
-                                             self, self.max_alive_at_once))
+                logging.debug('self.max_alive_at_once@{}: {}'
+                              .format(
+                                  self, self.max_alive_at_once))
                 self.no_of_parts = 16
-                self._HarvesterCoreLOGer(3, 'self.no_of_parts@{}: {}'.format(
+                logging.debug('self.no_of_parts@{}: {}'.format(
                     self, self.no_of_parts))
 
                 # assign_karg
@@ -69,35 +68,34 @@ class HarvesterEngine(object):
                     self.no_of_parts = kargs.pop('no_of_parts')
                 if kargs != {}:
                     for parram in kargs.keys():
-                        self._HarvesterCoreLOGer(
-                            2, 'Invalid option! "{}"'.format(parram))
+                        logging.error('Invalid option! "{}"'.format(parram))
 
                 if not isdir(self.location):
                     if self.location != '':
                         mkdir(self.location)
-                        self._HarvesterCoreLOGer(0,
-                                                 '{} Directory is created'
-                                                 .format(
-                                                     self.location))
+                        logging.info(
+                            '{} Directory is created'
+                            .format(
+                                self.location))
                 if not isdir(self.part_location):
                     if self.part_location != '':
                         mkdir(self.part_location)
-                        self._HarvesterCoreLOGer(0,
-                                                 '{} Directory is created'
-                                                 .format(
-                                                     self.part_location))
-                self._HarvesterCoreLOGer(
-                    3, 'self.file_name@{}: {}'.format(self, self.file_name))
-                self._HarvesterCoreLOGer(0,
-                                         'FILE NAME: {}'
-                                         .format(self.file_name))
+                        logging.info(
+                            '{} Directory is created'
+                            .format(
+                                self.part_location))
+                logging.debug('self.file_name@{}: {}'.format(
+                    self, self.file_name))
+                logging.info(
+                    'FILE NAME: {}'
+                    .format(self.file_name))
             else:
-                self._HarvesterCoreLOGer(2, 'Not Downloadable!')
+                logging.warning('Not Downloadable!')
         except Exception as e:
-            self._HarvesterCoreLOGer(2,
-                                     'HarvesterEngine.__init__@{}[{}]: {}'
-                                     .format(
-                                         self, e.__traceback__.tb_lineno, e))
+            logging.critical(
+                'HarvesterEngine.__init__@{}[{}]: {}'
+                .format(
+                    self, e.__traceback__.tb_lineno, e))
             raise e
 
     def Download(self, blocking=True):
@@ -114,13 +112,13 @@ class HarvesterEngine(object):
 
         def _Download():
             try:
-                self._HarvesterCoreLOGer(3, 'self.block@_Download@{}: {}'
-                                         .format(
-                                             self, self.block))
+                logging.debug('self.block@_Download@{}: {}'
+                              .format(
+                                  self, self.block))
 
                 if self.downloadable and (not self.downloading):
                     self.downloading = True
-                    self._HarvesterCoreLOGer(0, 'Starting Download!')
+                    logging.info('Starting Download!')
                     self.stoped = False
                     mother_thread = HarvesterHelper.E_Thread(
                         HarvesterHelper._download, Max_thread=8)
@@ -129,10 +127,10 @@ class HarvesterEngine(object):
                         Part_length = 0
                     else:
                         Part_length = self.size // self.no_of_parts
-                    self._HarvesterCoreLOGer(3,
-                                             'Part_length@_Download@{}: {}'
-                                             .format(
-                                                 self, Part_length))
+                    logging.debug(
+                        'Part_length@_Download@{}: {}'
+                        .format(
+                            self, Part_length))
                     for _ in range(self.no_of_parts - 1):
                         mother_thread.start(
                             self, (_ * Part_length, (_ + 1) * Part_length), _)
@@ -150,11 +148,11 @@ class HarvesterEngine(object):
                     pass
 
             except Exception as e:
-                self._HarvesterCoreLOGer(2,
-                                         'HarvesterEngine._Download@{}[{}]:\
+                logging.critical(
+                    'HarvesterEngine._Download@{}[{}]:\
                                      {}'.format(
-                                             self,
-                                             e.__traceback__.tb_lineno, e))
+                        self,
+                        e.__traceback__.tb_lineno, e))
                 self.downloading = False
                 self.DownloadError = e
                 print(e)
@@ -170,16 +168,16 @@ class HarvesterEngine(object):
             if self.pauseable and self.downloadable:
                 self.stoped = True
                 self.downloading = False
-                self._HarvesterCoreLOGer(0, 'Download is Paused')
-                self._HarvesterCoreLOGer(
-                    3, 'self.stoped@Pause@{}: {}'.format(self, self.stoped))
+                logging.info('Download is Paused')
+                logging.debug(
+                    'self.stoped@Pause@{}: {}'.format(self, self.stoped))
             else:
-                self._HarvesterCoreLOGer(1, 'Not Pauseable')
-                self._HarvesterCoreLOGer(0, 'Call Stop() for exit')
+                logging.error('Not Pauseable')
+                logging.info('Call Stop() for exit')
         except Exception as e:
-            self._HarvesterCoreLOGer(2,
-                                     'HarvesterEngine.Pause@{}[{}]: {}'.format(
-                                         self, e.__traceback__.tb_lineno, e))
+            logging.critical(
+                'HarvesterEngine.Pause@{}[{}]: {}'.format(
+                    self, e.__traceback__.tb_lineno, e))
             raise e
 
     def Stop(self):

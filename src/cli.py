@@ -197,7 +197,6 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                                         part_location=part_location,
                                         max_alive_at_once=max_alive_at_once,
                                         no_of_parts=no_of_parts)
-                main_instance._HarvesterCoreLOGer = LOG(PRINT_INFO=False)
                 print('\n\n')
                 print(main_instance.Get_info())
                 if main_instance.downloadable:
@@ -206,7 +205,6 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                     display_handlers(main_instance)
                 else:
                     not_downloadable_handler(url)
-                sleep(1)
                 print('\n\n')
                 print('\a')
                 print('=' * get_terminal_size()[0])
