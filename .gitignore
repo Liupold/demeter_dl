@@ -1,3 +1,4 @@
 __pycache__/
 config.json
 demeter_dl.log
+demeter_dl.config

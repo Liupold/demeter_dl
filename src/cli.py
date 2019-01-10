@@ -62,8 +62,8 @@ def GenHomeLocation():
 
 
 def get_config(key, default_value):
-    if isfile(GenHomeLocation() + 'demeter_dl.config.json'):
-        with open(GenHomeLocation() + 'demeter_dl.config.json', 'r') as f:
+    if isfile('demeter_dl.config.json'):
+        with open('demeter_dl.config.json', 'r') as f:
             data = f.read()
 
         if len(data) != "":
@@ -77,7 +77,7 @@ def get_config(key, default_value):
             main_dict[key] = default_value
             json_main_dict = json.dumps(
                 main_dict, sort_keys=True, indent=4)
-            with open(GenHomeLocation() + 'demeter_dl.config.json', 'w') as f:
+            with open('demeter_dl.config.json', 'w') as f:
                 f.write(json_main_dict)
             return default_value
 
@@ -89,7 +89,7 @@ def get_config(key, default_value):
         main_dict[key] = default_value
         json_main_dict = json.dumps(
             main_dict, sort_keys=True, indent=4)
-        with open(GenHomeLocation() + 'demeter_dl.config.json', 'w') as f:
+        with open('demeter_dl.config.json', 'w') as f:
             f.write(json_main_dict)
         return default_value
 
@@ -207,15 +207,15 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
             elif url == 'about':
-                print('Simple Harvester CLI by Rohn Chatterjee\
-                    (writer of harvester)')
+                print('Simple Demeter Dl CLI by Rohn Chatterjee\
+                    (writer of Demeter Dl)')
                 print('\n\n')
                 print('\a')
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
             elif url == 'clear':
                 os.system('cls' if os.name == 'nt' else 'clear')
-                print('-------------- Harvester ---------------')
+                print('-------------- Demeter Dl ---------------')
                 print('Version: {}'.format(__version__),
                       'Build with Python 3.7.2')
                 print('Author: liupold @ github')
@@ -306,7 +306,7 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
 
 
 if __name__ == '__main__':
-    print('-------------- Harvester ---------------')
+    print('-------------- Demeter Dl ---------------')
     print('Version: {}'.format(__version__), 'Build with Python 3.7.2')
     print('Author: liupold @ github')
     print('Support: liupold@programmer.net')

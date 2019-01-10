@@ -211,15 +211,15 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
             elif url == 'about':
-                print('Simple Harvester CLI by Rohn Chatterjee\
-                    (writer of harvester)')
+                print('Simple Demeter Dl CLI by Rohn Chatterjee\
+                    (writer of Demeter Dl)')
                 print('\n\n')
                 print('\a')
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
             elif url == 'clear':
                 os.system('cls' if os.name == 'nt' else 'clear')
-                print('-------------- Harvester ---------------')
+                print('-------------- Demeter Dl ---------------')
                 print('Version: {}'.format(__version__),
                       'Build with Python 3.7.2')
                 print('Author: liupold @ github')
@@ -310,7 +310,7 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
 
 
 if __name__ == '__main__':
-    print('-------------- Harvester ---------------')
+    print('-------------- Demeter Dl ---------------')
     print('Version: {}'.format(__version__), 'Build with Python 3.7.2')
     print('Author: liupold @ github')
     print('Support: liupold@programmer.net')
