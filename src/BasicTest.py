@@ -1,6 +1,6 @@
 ﻿import unittest
-from harvester.Core import HarvesterEngine
-from harvester import HarvesterHelper
+from demeter_dl.Core import HarvesterEngine
+from demeter_dl import Helper
 from requests.structures import CaseInsensitiveDict
 from time import sleep
 import shutil

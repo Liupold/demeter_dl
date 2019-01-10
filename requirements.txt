@@ -3,4 +3,5 @@ colorama
 pafy
 youtube-dl
 click
-progressbar2
+tqdm
+ffmpy

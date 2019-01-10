@@ -1,32 +1,40 @@
 import click
-from harvester.Core import HarvesterEngine
-from harvester.HarvesterHelper import LOG
-import progressbar
+from demeter_dl.Core import HarvesterEngine
+from demeter_dl.Helper import LOG
 from time import sleep
-from os import get_terminal_size, environ
+from os import get_terminal_size, environ, remove
 from os.path import isfile
+import os
 import platform
 import json
+
 platform_name = platform.system()
 
 art = """
-                                                __   _____
-|   |,---.                     |               /  | |  _  |
-|---||---|,---..    ,,---.,---.|--- ,---.,---  `| | | |/' |
-|   ||   ||     \  / |---'`---.|    |---'|      | | |  /| |
-`   '`   '`      `'  `---'`---'`---'`---'`     _| |_\ |_/ /
-                                               \___(_)___/
+██████╗ ███████╗███╗   ███╗███████╗████████╗███████╗██████╗    ██████╗ ██╗
+██╔══██╗██╔════╝████╗ ████║██╔════╝╚══██╔══╝██╔════╝██╔══██╗   ██╔══██╗██║
+██║  ██║█████╗  ██╔████╔██║█████╗     ██║   █████╗  ██████╔╝   ██║  ██║██║
+██║  ██║██╔══╝  ██║╚██╔╝██║██╔══╝     ██║   ██╔══╝  ██╔══██╗   ██║  ██║██║
+██████╔╝███████╗██║ ╚═╝ ██║███████╗   ██║   ███████╗██║  ██║   ██████╔╝███████╗
+╚═════╝ ╚══════╝╚═╝     ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═════╝ ╚══════╝
+
+                             ██╗    ██████╗    ██╗
+                            ███║   ██╔═████╗  ███║
+                            ╚██║   ██║██╔██║  ╚██║
+                             ██║   ████╔╝██║   ██║
+                             ██║██╗╚██████╔╝██╗██║
+                             ╚═╝╚═╝ ╚═════╝ ╚═╝╚═╝
+
 """
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 __url__ = 'https://github.com/Liupold/harvester'
 # INDICATE VERSION AND BUILD, PREVENTS ERROR WITH CONFIG FILE
-
+pbar = None
 toast = LOG()
 
 
 def generate_DownloadLocation():
-    global __part_location, __download_location
     if platform_name == 'Windows':
         return environ['USERPROFILE'] + "/Downloads/"
     elif platform_name == 'Linux':
@@ -36,7 +44,6 @@ def generate_DownloadLocation():
 
 
 def generate_PartLocation():
-    global __part_location
     if platform_name == 'Windows':
         return environ['LOCALAPPDATA'] + "/Barn(Harvester storage)/"
     elif platform_name == 'Linux':
@@ -45,9 +52,18 @@ def generate_PartLocation():
         return ""
 
 
+def GenHomeLocation():
+    if platform_name == 'Windows':
+        return environ['USERPROFILE'] + "/Documents/"
+    elif platform_name == 'Linux':
+        return environ['HOME']
+    else:
+        return ""
+
+
 def get_config(key, default_value):
-    if isfile('config.json'):
-        with open('config.json', 'r') as f:
+    if isfile(GenHomeLocation() + 'demeter_dl.config.json'):
+        with open(GenHomeLocation() + 'demeter_dl.config.json', 'r') as f:
             data = f.read()
 
         if len(data) != "":
@@ -61,7 +77,7 @@ def get_config(key, default_value):
             main_dict[key] = default_value
             json_main_dict = json.dumps(
                 main_dict, sort_keys=True, indent=4)
-            with open('config.json', 'w') as f:
+            with open(GenHomeLocation() + 'demeter_dl.config.json', 'w') as f:
                 f.write(json_main_dict)
             return default_value
 
@@ -73,14 +89,16 @@ def get_config(key, default_value):
         main_dict[key] = default_value
         json_main_dict = json.dumps(
             main_dict, sort_keys=True, indent=4)
-        with open('config.json', 'w') as f:
+        with open(GenHomeLocation() + 'demeter_dl.config.json', 'w') as f:
             f.write(json_main_dict)
         return default_value
 
 
 def display_handlers(self):
-    """sleep(1)
+    sleep(1)
     print('\n\n')
+    global pbar
+    from tqdm import tqdm
     buff = self.done
     pbar = tqdm(total=self.size, unit_scale=1, unit='B',
                 initial=buff, unit_divisor=1024)
@@ -89,10 +107,11 @@ def display_handlers(self):
         pbar.update(done - buff)
         buff = done
     pbar.close()
-    sleep(0.1)"""
+    sleep(0.1)
+    """
     print('\n\n')
     _initial = self.done
-    widgets = [progressbar.Bar(marker="#", left="[", right="]"),
+    widgets = [progressbar.Bar(marker="█", left="[", right="]", fill="░"),
                progressbar.Percentage(), " | ",
                progressbar.FileTransferSpeed(), " | ",
                progressbar.DataSize(), " | ",
@@ -103,8 +122,8 @@ def display_handlers(self):
 
     while (not self.completed) or (self.stoped):
         bar.update(self.done)
-        sleep(0.0167)
     bar.finish()
+    """
 
 
 def not_downloadable_handler(url):
@@ -118,6 +137,7 @@ def not_downloadable_handler(url):
 
 def yt_handler(dl_link):
     from pafy import new as pafy_new
+    global yt_obj
     print('Hang tight checking Youtube For Your Video....!')
     yt_obj = pafy_new(dl_link)
     a_or_v = input('Audio/Video Enter A or V: ')
@@ -129,23 +149,36 @@ def yt_handler(dl_link):
         while True:
             try:
                 sl_no = input('Serial No: ')
+                _file_name = a_streams[int(sl_no) - 1].filename.split('.')
+
+                _file_name[-2] += " ({})".format(
+                    a_streams[int(sl_no) - 1].notes)
+
+                filename = '.'.join(_file_name)
                 return a_streams[int(sl_no) - 1].url,\
-                    a_streams[int(sl_no) - 1].filename
+                    filename, 'A'
             except Exception as e:
                 print('Try again!')
 
     if a_or_v.upper() == 'V':
         print('Enter The SERIAL of desired format And bitrate')
-        v_streams = yt_obj.streams
+        v_streams = yt_obj.videostreams
         for sl_no, _stream in enumerate(v_streams, 1):
-            print(str(sl_no) + ')', _stream)
+            print(str(sl_no) + ')', _stream, _stream.notes)
         while True:
             try:
                 sl_no = input('Serial No: ')
+                _file_name = v_streams[int(sl_no) - 1].filename.split('.')
+
+                _file_name[-2] += " ({})".format(
+                    v_streams[int(sl_no) - 1].notes)
+
+                filename = '.'.join(_file_name)
                 return v_streams[int(sl_no) - 1].url, \
-                    v_streams[int(sl_no) - 1].filename
+                    filename, 'V'
             except Exception as e:
                 print('Try again!')
+                print(e)
 
 
 DownloadLocation = get_config('Download Location', generate_DownloadLocation())
@@ -164,6 +197,7 @@ PartLocation = get_config('Part Location', generate_PartLocation())
 def cli(location, part_location, max_alive_at_once, no_of_parts):
     while True:
         try:
+            _type = None
             main_instance = None
             url = input('URL-->')
             if url == 'art':
@@ -179,11 +213,25 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                 print('\a')
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
+            elif url == 'clear':
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print('-------------- Harvester ---------------')
+                print('Version: {}'.format(__version__),
+                      'Build with Python 3.7.2')
+                print('Author: liupold @ github')
+                print('Support: liupold@programmer.net')
+                print('-----------------------------------------\n\n\n')
+            elif url == "":
+                print('\n\n\a')
+                print('=' * get_terminal_size()[0])
+                print('\n\n')
             else:
                 if 'https://www.youtube.com/watch?v=' == url[0:32]\
                         or 'https://youtu.be/' == url[0:17]:
-                    url, yt_filename = yt_handler(url)
+                    url, yt_filename, _type = yt_handler(url)
                     print("Hang on Getting File Info")
+                    if _type == 'V':
+                        yt_filename = '__video__' + yt_filename
                     main_instance = \
                         HarvesterEngine(url, location=location,
                                         part_location=part_location,
@@ -199,20 +247,57 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
                                         no_of_parts=no_of_parts)
                 print('\n\n')
                 print(main_instance.Get_info())
+
                 if main_instance.downloadable:
                     input("Press Enter to start Download or Crtl+C to exit")
-                    main_instance.Download(False)
+                    if _type == "V":
+                        try:
+                            main_instance.Download(False)
+                        except FileExistsError as e:
+                            print("Video File Exist")
+                    else:
+                        main_instance.Download(False)
                     display_handlers(main_instance)
                 else:
                     not_downloadable_handler(url)
+
+                if _type == 'V':
+                    print('\n\n')
+                    print("Getting Audio, pls wait.")
+                    a_object = yt_obj.getbestaudio()
+                    audio_url, audio_fiename = a_object.url, a_object.filename
+                    audio_instance = \
+                        HarvesterEngine(audio_url, location=location,
+                                        part_location=part_location,
+                                        max_alive_at_once=max_alive_at_once,
+                                        no_of_parts=no_of_parts,
+                                        file_name="__audio__" + audio_fiename)
+                    try:
+                        audio_instance.Download(False)
+                    except FileExistsError:
+                        print("Audio File Exists continuing....")
+                    display_handlers(audio_instance)
+                    print("Mixing Audio With Video PLS WAIT")
+                    from cli_mixer import mix_av
+                    if yt_filename.split('.')[-1].lower() == 'webm':
+                        out_put_file_name = yt_filename[9::].replace(
+                            '.webm', '.mkv')
+                    else:
+                        out_put_file_name = " " + yt_filename[9::]
+                    mix_av(location + yt_filename,
+                           location + "__audio__" + audio_fiename,
+                           location + out_put_file_name)
+                    remove(location + "__audio__" + audio_fiename)
+                    remove(location + yt_filename)
+
                 print('\n\n')
                 print('\a')
                 print('=' * get_terminal_size()[0])
                 print('\n\n')
         except KeyboardInterrupt:
-            print('\n')
             if main_instance is not None:
                 main_instance.Stop()
+                pbar.close()
             else:
                 quit()
             print('\n\n\a')
@@ -222,7 +307,7 @@ def cli(location, part_location, max_alive_at_once, no_of_parts):
 
 if __name__ == '__main__':
     print('-------------- Harvester ---------------')
-    print('Version: {}'.format(__version__), 'Build with Python 3.6.5')
+    print('Version: {}'.format(__version__), 'Build with Python 3.7.2')
     print('Author: liupold @ github')
     print('Support: liupold@programmer.net')
     print('-----------------------------------------')
