@@ -122,9 +122,9 @@ class HarvesterEngine(object):
                     self.completed = True
                     raise FileExistsError("Same File Probably Exists")
                 else:
-                    LOG()(1, f"File with Same \
+                    LOG()(1, "File with Same \
                         File Name Exists Changing File \
-                        Name to :{'New ' + self.file_name}")
+                        Name to :{}".format('New ' + self.file_name))
                     self.file_name = "New " + self.file_name
                     cheak_if_exist()
             else:
