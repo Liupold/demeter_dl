@@ -18,8 +18,7 @@ python version used - 3.7.2 for latest release!
 ***
 
 ##Installation 
-###Using "pip" (only on python 3.4+)[Recomended]
-
+### Using "pip" (only on python 3.4+)[Recomended]
 You will need ffmpeg for complete youtube support.
 Install ffmpeg on your platform.
 
@@ -28,14 +27,14 @@ Install ffmpeg on your platform.
 And you are good to go. Make sure to *pip3 on linux*. 
 After installation use ```python3 -m demeter_dl``` to use the downloader.
 
-###Using pre-compiled binary (Only Windows):
+### Using pre-compiled binary (Only Windows):
 Download and extract the zip from the release. Open the folder you will find a "cli.exe" file. Right click on that and send that to desktop. (Create shortcut). Double click on the sgortcut to launch and use the cli.
 
-#####On LInux use pip to install.
+##### On LInux use pip to install.
 
 ***
 
-##Useing the Donwloader(CLI):
+## Using the Donwloader(CLI):
 
 * Give any url and hit enter
 * A confirnmation message will be shown with file info.
@@ -52,11 +51,11 @@ some special urls ;)
 
 ***
 
-##Using in your own code (Intoduction):
+## Using in your own code (Intoduction):
 
 Let's start out project By downloading a Test File.
 
-***The file url: https://speed.hetzner.de/100MB.bin ***
+*** The file url: https://speed.hetzner.de/100MB.bin ***
 
 Make sure the link is working else report.
 
@@ -67,7 +66,7 @@ Let's get started.
 	download_instance = HarvesterEngine(url)  # This will use the default options
 	print(download_instance.Get_info())
 
-####OUTPUT
+#### OUTPUT
 
 >FILE NAME     : 100MB.bin,
 FILE SIZE     : 100.0 MB(104857600 Bytes),
@@ -91,7 +90,7 @@ so it seems there are preety good options let's use some
 	download_instance = HarvesterEngine(url, file_name="Test file.bin", location="Downloads/")  # This will use the custom options
 	print(download_instance.Get_info())
 
-####OUTPUT
+#### OUTPUT
 
 >FILE NAME     : Test file.bin,
 FILE SIZE     : 100.0 MB(104857600 Bytes),
@@ -106,7 +105,7 @@ wait for it to finish and you will see the file in Donwloads folder in your curr
 For more info go through the cli.py file in src. (Documention is on the way). 
 ***
 
-##Licence and Copyright
+## Licence and Copyright
 
 © Rohn chatterjee (Liupold)
 Licence -> LGPL 3.0
