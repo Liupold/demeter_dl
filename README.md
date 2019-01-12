@@ -1,188 +1,112 @@
-[![image](https://travis-ci.org/Liupold/harvester.svg?branch=master)](https://travis-ci.org/Liupold/harvester)
+[![image](https://travis-ci.org/Liupold/demeter_dl.svg?branch=master)](https://travis-ci.org/Liupold/demeter_dl)
 [![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/Liupold)
 
-Open Download Manager (with OpenEngine)
+Demeter Dl (With HarvesterEngine)
 =======================================
 
 Aim of the Project:
 -------------------
 
-This is a project aPm to provide the *Fast , Free & Efficient* way to download
+This is a project aim to provide the *Fast , Free & Efficient* way to download
 files from internet. At the same time keeping the code readable and flexible.
 
 ![](harvest.png)
 
-python version used - 3.6.5 for latest release!
+python version used - 3.7.2 for latest release!
 
  
+***
 
-How to use the CLI:
--------------------
+##Installation 
+###Using "pip" (only on python 3.4+)[Recomended]
 
--   Download the release for your platform, Extract, and read the readme.txt for
-    how to start the cli.
+You will need ffmpeg for complete youtube support.
+Install ffmpeg on your platform.
 
--   copy and paste the download link and hit enter key.
+> ```pip install demeter_dl```
 
-    -   confirm the sown info about the file. wolah! download started.
+And you are good to go. Make sure to *pip3 on linux*. 
+After installation use ```python3 -m demeter_dl``` to use the downloader.
 
-    -   if the file is resume-able close the program to stop and will
-        automatically resume the next time you try to
+###Using pre-compiled binary (Only Windows):
+Download and extract the zip from the release. Open the folder you will find a "cli.exe" file. Right click on that and send that to desktop. (Create shortcut). Double click on the sgortcut to launch and use the cli.
 
--   Watch demo_use video for more info.
-[![Watch the video](video_.png)](https://www.youtube.com/watch?v=iqPI-6H5CjU)
+#####On LInux use pip to install.
 
- 
+***
 
-Features:
----------
+##Useing the Donwloader(CLI):
 
--   Super Fast Download speed
+* Give any url and hit enter
+* A confirnmation message will be shown with file info.
+* Hit enter to continue.
+* On completion a audible bell will pe played.
+* and new instance will be initiated.
 
--   Auto resume for download supporting resume feature
+some special urls ;)
 
--   Download YouTube videos just with URL ;)
+* art
+* clear
+* about
 
--   with only audio support for YouTube
 
--   Supper informative CLI(Command Line Interface)
+***
 
--   In-Buit Log and Debug Feature
+##Using in your own code (Intoduction):
 
--   Can be implemented directly into other python programs
+Let's start out project By downloading a Test File.
 
-###### You can also
+***The file url: https://speed.hetzner.de/100MB.bin ***
 
--   Directly implement into GUI using non-blocking structure!
+Make sure the link is working else report.
 
-    -   Chose custom *Location/Name/Max alive* For Each Download.
+Let's get started.
 
- 
+	from demeter_dl.Core import HarvesterEngine
+	url = "https://speed.hetzner.de/100MB.bin"
+	download_instance = HarvesterEngine(url)  # This will use the default options
+	print(download_instance.Get_info())
 
-Requirements:
--------------
+####OUTPUT
 
-The following Python modules are needed in order the Program to work **Only if
-compiling from source or Interpreting the source! OR implementing dl_engine.**
+>FILE NAME     : 100MB.bin,
+FILE SIZE     : 100.0 MB(104857600 Bytes),
+TARGET        : 
 
- 
 
--   threading `pre-installed with python`
+This Patch of code will initiate a download instance and print the information of the file
 
--   os `pre-installed with python`
+Now let's see what are the the options availabe during initiation(params):
 
--   time `pre-installed with python`
+* **file_name** : Override the filename from the server
+* **location**: Overide the file location (Default is the current directory)
+* **part_location**: location of the part files (temporary files, Default is current directory)
+* **no_of_parts**: How many parts the file will be devided into for speed(More is not always better, Default is 16)
+* **max_alive_at_once**: Max no of parts. (Max part allowed to download at the same time Default is 8)
 
--   cgi `pre-installed with python`
+so it seems there are preety good options let's use some
 
--   Queue `pre-installed with python`
+	from demeter_dl.Core import HarvesterEngine
+	url = "https://speed.hetzner.de/100MB.bin"
+	download_instance = HarvesterEngine(url, file_name="Test file.bin", location="Downloads/")  # This will use the custom options
+	print(download_instance.Get_info())
 
--   requests `pip install requests`
+####OUTPUT
 
--   colorama `pip install colorama`
+>FILE NAME     : Test file.bin,
+FILE SIZE     : 100.0 MB(104857600 Bytes),
+TARGET        : Downloads/
 
--   urllib `pip install urllib`
+satisfied with the output now we will proceed to download the file:
+(It's simple AF)
 
--   tqdm `pip install tqdm`
+	download_instance.Download()
 
--   cx_freeze `pip install cx_freeze`
+wait for it to finish and you will see the file in Donwloads folder in your current directory.
+For more info go through the cli.py file in src. (Documention is on the way). 
+***
 
--   pafy `pip install pafy`
+##Licence and Copyright
 
--   youtube-dl `pip install youtube-dl`
-
- 
-
-Project Structure:
-------------------
-
- 
-
-The main **class (OpenEngine)** is stored in **dl_engine.py**
-
-The class required some functionality such as to get the file name / file size
-and etc **provided by req_fn.py**
-
-smart thread management is taken care by **smart_thread.py** *available as a
-separate project here.*
-
-The main download function and file write part is present in **main_fn.py**
-
-The user friendly CLI is present in **cli.py.**
-
-That’s all.
-
-For Implementation details check **cli.py.**
-
- 
-
-### dl_engine:
-
-class OpenEngine:
-
-Main class where every thing takes place.
-
-Variable:
-
-self.given_url -\> URL provided
-
-self.verify -\> Whether to verify the certificate of the website
-
-self.filename -\> Name of the file to be downloaded
-
-self.url -\> Final redirected URL
-
-self.headed -\> request header for self.url
-
-self.downloadable -\> check if file is downloadable.
-
-self.size -\> file size in Bytes
-
-self.pauseable -\> is download pause able
-
-self.location -\> download location
-
-self.completed -\> is download completed ?
-
-self.done -\> Bytes already downloaded!
-
-self.max_alive_at_once -\> Max no of parts to be downloaded at once(default=8)
-
-self.no_of_parts -\> No of file the file will be divided during
-download.(default=16)
-
-self.block -\> To block the thread or not during download.
-
- 
-
-Functions:
-
-self.download -\> download function.
-
-self.pause -\> Not yet implemented!
-
-self.stop -\> working on It!
-
- 
-
-Known issue:
-------------
-
-some typo errors.
-
-not working with G-drive
-
-### Report if you found any!
-
- 
-
-Working on:
------------
-
--   issues
-
--   GUI
-
- 
-
-oh Yeah! it’s free and working!
+© Rohn chatterjee (Liupold)
+Licence -> LGPL 3.0

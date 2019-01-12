@@ -3,15 +3,9 @@ from os.path import isdir
 from os.path import isfile, getsize
 from os import mkdir
 import logging
-
-try:
-    from .Helper import E_Thread, get_filename, get_info, get_size
-    from .Helper import LOG, p_unit, _download
-    from .Helper import _is_downloadable, _is_pauseable, _writer
-except ImportError:
-    from Helper import E_Thread, get_filename, get_info, get_size
-    from Helper import LOG, p_unit, _download
-    from Helper import _is_downloadable, _is_pauseable, _writer
+from .Helper import E_Thread, get_filename, get_info, get_size
+from .Helper import LOG, p_unit, _download
+from .Helper import _is_downloadable, _is_pauseable, _writer
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] :: %(message)s",
